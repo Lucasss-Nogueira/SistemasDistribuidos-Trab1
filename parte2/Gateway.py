@@ -13,11 +13,15 @@ def handle_cliente(cliente_socket, endereco):
         comando = messages_pb2.Command()
         comando.ParseFromString(comando_msg)
         
-        if comando.type in equipamentos:
-            equipamento_socket = equipamentos[comando.type]
-            equipamento_socket.send(comando_msg)
-        else:
-            print(f'Equipamento desconhecido: {comando.type}')
+        # if comando.type in equipamentos:
+        #     equipamento_socket = equipamentos[comando.type]
+        #     equipamento_socket.send(comando_msg)
+        # else:
+        #     print(f'Equipamento desconhecido: {comando.type}')
+
+        if comando.type == messages_pb2.EquipmentInfo.AC:
+            temperatura = comando.temperature
+            print(f'Temperatura recebida do AC: {temperatura}°C')
 
 # Função para descoberta multicast
 def multicast_discovery():
@@ -55,30 +59,41 @@ def enviar_comando():
             state = False
             temperatura = 0
             senha = "pass" 
-            comando = input('Digite o comando (ligar/desligar/temperatura/senha): ')
-
             comando_msg.type = tipo
-            comando_msg.temperature = 0
+            comando_msg.temperature = temperatura
+            comando_msg.state = state
+            comando_msg.password = senha
 
-            if comando.lower() == 'desligar':
-                state = False
-                #print(f'comando_msg.state = {comando_msg.state}')
-            elif comando.lower() == 'ligar':
-                state = True
-            
-            elif comando.lower().startswith('temperatura'):
-                try:
-                    temperatura = int(comando.split()[1])
-                    
-                except (IndexError, ValueError):
-                    print('Comando de temperatura inválido. Use "temperatura <valor>".')
+            if tipo == 'LAMP':
+                comando = input('Digite o comando (ligar/desligar): ')
+                if comando.lower() == 'desligar':
+                    state = False
+                elif comando.lower() == 'ligar':
+                    state = True
+                else:
+                    print('Comando inválido.')
                     continue
-            elif comando.lower().startswith('senha'):
-                senha = comando.split()[1]
 
-            else:
-                print('Comando inválido.')
-                continue
+            elif tipo == 'AC':
+                comando = input('Digite o comando (temperatura): ')
+                # if comando.lower().startswith('temperatura'):
+                    # try:
+                temperatura = int(comando)
+                    # except (IndexError, ValueError):
+                    #     print('Comando de temperatura inválido. Use "temperatura <valor>".')
+                    #     continue
+                # else:
+                #     print('Comando inválido.')
+                #     continue
+
+            elif tipo == 'LOCK':
+                comando = input('Digite o comando (senha): ')
+                if comando.lower().startswith('senha'):
+                    senha = comando.split()[1]
+                else:
+                    print('Comando inválido.')
+                    continue
+
             
             comando_msg.state = state
             comando_msg.password = senha

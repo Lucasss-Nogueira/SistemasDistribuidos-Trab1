@@ -1,5 +1,7 @@
 import socket
 import messages_pb2
+import time
+import threading
 
 # Configurações do ar-condicionado
 EQUIPAMENTO_TIPO = messages_pb2.EquipmentInfo.AC
@@ -30,6 +32,18 @@ while True:
         print('Ar-condicionado conectado ao Gateway.')
         multicast_socket.close()
         break
+
+def enviar_temperatura(ac_socket):
+    while True:
+        comando_msg = messages_pb2.Command()
+        comando_msg.type = EQUIPAMENTO_TIPO
+        comando_msg.temperature = temperatura
+        ac_socket.send(comando_msg.SerializeToString())
+        print(f'Temperatura enviada: {temperatura}°C')
+        time.sleep(5)
+# Thread para enviar a temperatura periodicamente
+thread_temperatura = threading.Thread(target=enviar_temperatura, args=(ac_socket,))
+thread_temperatura.start()
 
 # Aguarda comandos do Gateway e executa as ações correspondentes
 while True:
