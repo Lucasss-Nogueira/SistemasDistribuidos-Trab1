@@ -25,7 +25,6 @@ def handle_cliente(cliente):
                     cliente.send('Conectado ao chat!'.encode('utf-8'))
                     enviar_mensagem(f'{apelido} entrou no chat.', cliente)
                 else:
-                    #len==4 ? cliente.send('Chat cheio!'.encode('utf-8')): cliente.send('Apelido já em uso.'.encode('utf-8'))
                     if len == 4:
                         cliente.send('Chat cheio!'.encode('utf-8'))
                     else:

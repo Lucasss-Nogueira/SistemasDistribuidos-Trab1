@@ -1,62 +1,47 @@
-# import socket
-# import messages_pb2
-
-# # Configurações da lâmpada
-# LAMP_IP = '127.0.0.1'
-# LAMP_PORT = 12345
-
-# # Inicializa o socket da lâmpada
-# lamp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# lamp_socket.connect((LAMP_IP, LAMP_PORT))
-
-# # Mensagem de identificação da lâmpada
-# equipamento_info = messages_pb2.EquipmentInfo()
-# equipamento_info.type = 'LAMP'
-# equipamento_info.ip = LAMP_IP
-# equipamento_info.port = LAMP_PORT
-# lamp_socket.send(equipamento_info.SerializeToString())
-
-# # Lógica da lâmpada
-# while True:
-#     comando = input('Comando para a lâmpada (ligar/desligar): ')
-#     if comando.lower() == 'ligar':
-#         comando_msg = messages_pb2.Command(type=messages_pb2.Command.LAMP, state=True)
-#         lamp_socket.send(comando_msg.SerializeToString())
-#     elif comando.lower() == 'desligar':
-#         comando_msg = messages_pb2.Command(type=messages_pb2.Command.LAMP, state=False)
-#         lamp_socket.send(comando_msg.SerializeToString())
-#     else:
-#         print('Comando inválido. Use "ligar" ou "desligar".')
 import socket
 import messages_pb2
 
 # Configurações da lâmpada
-LAMP_IP = '127.0.0.1'
-LAMP_PORT = 12345
-EQUIPAMENTO_TIPO = 'LAMP'
+EQUIPAMENTO_TIPO = messages_pb2.Command.LAMP
 
-# Inicializa o socket da lâmpada
-lamp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-lamp_socket.connect((LAMP_IP, LAMP_PORT))
+# Inicializa o socket TCP da lâmpada
+lampada_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# Mensagem de identificação da lâmpada
-equipamento_info = messages_pb2.EquipmentInfo()
-equipamento_info.type = EQUIPAMENTO_TIPO
-equipamento_info.ip = LAMP_IP
-equipamento_info.port = LAMP_PORT
-lamp_socket.send(equipamento_info.SerializeToString())
+# Inicializa o socket de descoberta multicast
+multicast_group = '224.0.0.1'
+multicast_port = 10001
+multicast_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+multicast_socket.bind(('', multicast_port))
+multicast_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+multicast_socket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, socket.inet_aton(multicast_group) + socket.inet_aton('0.0.0.0'))
+
+
+
+while True:
+    mensagem, endereco = multicast_socket.recvfrom(1024)
+    equipamento_info = messages_pb2.EquipmentInfo()
+    equipamento_info.ParseFromString(mensagem)
+
+    if equipamento_info.type == messages_pb2.Command.GATEWAY:
+        gateway_address = (equipamento_info.ip, equipamento_info.port)
+        # Conecta à porta específica do Gateway via TCP
+        lampada_socket.connect(gateway_address)
+        # Envia o tipo do dispositivo para o Gateway
+        lampada_socket.send("LAMP".encode())
+        print('Lâmpada conectada ao Gateway.')
+        multicast_socket.close()
+        break
 
 # Aguarda comandos do Gateway e executa as ações correspondentes
 while True:
-    comando_msg = lamp_socket.recv(1024)
+    comando_msg = lampada_socket.recv(1024)
     comando = messages_pb2.Command()
     comando.ParseFromString(comando_msg)
 
-    if comando.type == messages_pb2.Command.LAMP:
+    if comando.type == EQUIPAMENTO_TIPO:
         if comando.state:
             print('Lâmpada ligada.')
             # Lógica para ligar a lâmpada
         else:
             print('Lâmpada desligada.')
             # Lógica para desligar a lâmpada
-
