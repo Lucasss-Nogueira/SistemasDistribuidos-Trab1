@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+message EquipmentInfo {
+    string type = 1;
+    string ip = 2;
+    int32 port = 3;
+}
+
+message Command {
+    enum EquipmentType {
+        LAMP = 0;
+        AC = 1;
+        LOCK = 2;
+    }
+    EquipmentType type = 1;
+    bool state = 2;
+    int32 temperature = 3;
+    string password = 4;
+}
+
+message SensorData {
+    float temperature = 1;
+}
