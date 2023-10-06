@@ -23,6 +23,7 @@ message Command {
     bool state = 2;
     int32 temperature = 3;
     string password = 4;
+    string mensagem = 5;
 }
 
 message SensorData {

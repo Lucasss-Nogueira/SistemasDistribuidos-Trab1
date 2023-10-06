@@ -28,7 +28,7 @@ while True:
         lampada_socket.connect(gateway_address)
         # Envia o tipo do dispositivo para o Gateway
         lampada_socket.send("LAMP".encode())
-        print('Lâmpada conectada ao Gateway.')
+        print('Lâmpada conectada ao Gateway.\n')
         multicast_socket.close()
         break
 
@@ -40,8 +40,17 @@ while True:
 
     if comando.type == EQUIPAMENTO_TIPO:
         if comando.state:
-            print('Lâmpada ligada.')
+            print('Lâmpada ligada.\n')
+            comando_msg = messages_pb2.Command()
+            comando_msg.mensagem = "Lampada foi ligada"
+            comando_msg.type = EQUIPAMENTO_TIPO
+
+            lampada_socket.send(comando_msg.SerializeToString())
             # Lógica para ligar a lâmpada
         else:
-            print('Lâmpada desligada.')
+            print('Lâmpada desligada.\n')
+            comando_msg = messages_pb2.Command()
+            comando_msg.mensagem = "Lâmpada foi desligada."
+            comando_msg.type = EQUIPAMENTO_TIPO
+            lampada_socket.send(comando_msg.SerializeToString())
             # Lógica para desligar a lâmpada

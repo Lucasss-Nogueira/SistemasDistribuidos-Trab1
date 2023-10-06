@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0emessages.proto\"\x8f\x01\n\rEquipmentInfo\x12*\n\x04type\x18\x01 \x01(\x0e\x32\x1c.EquipmentInfo.EquipmentType\x12\n\n\x02ip\x18\x02 \x01(\t\x12\x0c\n\x04port\x18\x03 \x01(\x05\"8\n\rEquipmentType\x12\x08\n\x04LAMP\x10\x00\x12\x06\n\x02\x41\x43\x10\x01\x12\x08\n\x04LOCK\x10\x02\x12\x0b\n\x07GATEWAY\x10\x03\"\x9f\x01\n\x07\x43ommand\x12$\n\x04type\x18\x01 \x01(\x0e\x32\x16.Command.EquipmentType\x12\r\n\x05state\x18\x02 \x01(\x08\x12\x13\n\x0btemperature\x18\x03 \x01(\x05\x12\x10\n\x08password\x18\x04 \x01(\t\"8\n\rEquipmentType\x12\x08\n\x04LAMP\x10\x00\x12\x06\n\x02\x41\x43\x10\x01\x12\x08\n\x04LOCK\x10\x02\x12\x0b\n\x07GATEWAY\x10\x03\"!\n\nSensorData\x12\x13\n\x0btemperature\x18\x01 \x01(\x02\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0emessages.proto\"\x8f\x01\n\rEquipmentInfo\x12*\n\x04type\x18\x01 \x01(\x0e\x32\x1c.EquipmentInfo.EquipmentType\x12\n\n\x02ip\x18\x02 \x01(\t\x12\x0c\n\x04port\x18\x03 \x01(\x05\"8\n\rEquipmentType\x12\x08\n\x04LAMP\x10\x00\x12\x06\n\x02\x41\x43\x10\x01\x12\x08\n\x04LOCK\x10\x02\x12\x0b\n\x07GATEWAY\x10\x03\"\xb1\x01\n\x07\x43ommand\x12$\n\x04type\x18\x01 \x01(\x0e\x32\x16.Command.EquipmentType\x12\r\n\x05state\x18\x02 \x01(\x08\x12\x13\n\x0btemperature\x18\x03 \x01(\x05\x12\x10\n\x08password\x18\x04 \x01(\t\x12\x10\n\x08mensagem\x18\x05 \x01(\t\"8\n\rEquipmentType\x12\x08\n\x04LAMP\x10\x00\x12\x06\n\x02\x41\x43\x10\x01\x12\x08\n\x04LOCK\x10\x02\x12\x0b\n\x07GATEWAY\x10\x03\"!\n\nSensorData\x12\x13\n\x0btemperature\x18\x01 \x01(\x02\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -25,9 +25,9 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_EQUIPMENTINFO_EQUIPMENTTYPE']._serialized_start=106
   _globals['_EQUIPMENTINFO_EQUIPMENTTYPE']._serialized_end=162
   _globals['_COMMAND']._serialized_start=165
-  _globals['_COMMAND']._serialized_end=324
+  _globals['_COMMAND']._serialized_end=342
   _globals['_COMMAND_EQUIPMENTTYPE']._serialized_start=106
   _globals['_COMMAND_EQUIPMENTTYPE']._serialized_end=162
-  _globals['_SENSORDATA']._serialized_start=326
-  _globals['_SENSORDATA']._serialized_end=359
+  _globals['_SENSORDATA']._serialized_start=344
+  _globals['_SENSORDATA']._serialized_end=377
 # @@protoc_insertion_point(module_scope)

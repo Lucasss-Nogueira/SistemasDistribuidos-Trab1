@@ -3,6 +3,7 @@ import struct
 import threading
 import messages_pb2
 import time
+from google.protobuf import text_format
 # Dicionário para armazenar informações sobre os equipamentos conectados
 equipamentos = {}
 
@@ -18,6 +19,9 @@ def handle_cliente(cliente_socket, endereco):
         #     equipamento_socket.send(comando_msg)
         # else:
         #     print(f'Equipamento desconhecido: {comando.type}')
+
+        if len(comando.mensagem) > 3:
+            print(f'Mensagem recebida de {comando.EquipmentType.Name(comando.type)}: \n{comando.mensagem}\n')
 
         if comando.type == messages_pb2.EquipmentInfo.AC:
             temperatura = comando.temperature
@@ -51,7 +55,7 @@ def multicast_discovery():
 def enviar_comando():
     while True:
 
-        tipo = input('Digite o tipo do equipamento (LAMP, AC, LOCK): ')
+        tipo = input('Digite o tipo do equipamento (LAMP, AC, LOCK): \n')
         if tipo in equipamentos:
             
             comando_msg = messages_pb2.Command()
@@ -65,20 +69,25 @@ def enviar_comando():
             comando_msg.password = senha
 
             if tipo == 'LAMP':
-                comando = input('Digite o comando (ligar/desligar): ')
+                comando = input('Digite o comando (ligar/desligar): \n')
                 if comando.lower() == 'desligar':
                     state = False
                 elif comando.lower() == 'ligar':
                     state = True
                 else:
-                    print('Comando inválido.')
+                    print('Comando inválido.\n')
                     continue
 
             elif tipo == 'AC':
-                comando = input('Digite o comando (temperatura): ')
+                comando = input('Digite o comando (temperatura): \n')
                 # if comando.lower().startswith('temperatura'):
                     # try:
-                temperatura = int(comando)
+                if (comando.isnumeric()):
+                    temperatura = int(comando)
+                else:
+                    print('Comando inválido.\n')
+                    continue
+                    
                     # except (IndexError, ValueError):
                     #     print('Comando de temperatura inválido. Use "temperatura <valor>".')
                     #     continue
@@ -87,11 +96,12 @@ def enviar_comando():
                 #     continue
 
             elif tipo == 'LOCK':
-                comando = input('Digite o comando (senha): ')
+                comando = input('Digite o comando (senha): \n')
                 if comando.lower().startswith('senha'):
                     senha = comando.split()[1]
+                    state = ~state
                 else:
-                    print('Comando inválido.')
+                    print('Comando inválido.\n')
                     continue
 
             
@@ -102,7 +112,7 @@ def enviar_comando():
             equipamento_socket.send(comando_msg.SerializeToString())
 
         else:
-            print(f'Equipamento desconhecido: {tipo}')
+            print(f'Equipamento desconhecido: {tipo}\n')
 
 # Configurações do Gateway
 HOST =  socket.gethostbyname(socket.gethostname()) #'127.0.0.1'
@@ -121,7 +131,9 @@ thread_multicast.start()
 thread_comandos = threading.Thread(target=enviar_comando)
 thread_comandos.start()
 
-print('Gateway iniciado...')
+# Inicializa o socket UDP como None (ainda não criado)
+udp_socket = None
+print('Gateway iniciado...\n')
 
 # Aceita e lida com as conexões dos clientes
 while True:
@@ -129,5 +141,14 @@ while True:
     tipo_dispositivo = cliente_socket.recv(1024).decode()  # Recebe o tipo do dispositivo
     equipamentos[tipo_dispositivo] = cliente_socket
     print(f'Conexão estabelecida com {str(endereco)} (Tipo de dispositivo: {tipo_dispositivo})')
+    if tipo_dispositivo == 'AC' and udp_socket is None:
+        # Se o dispositivo for o ar-condicionado e o socket UDP ainda não foi criado
+        udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        udp_socket.bind((HOST, 12346))  # Porta para receber temperatura
+        print('Socket UDP para temperatura criado.')
+        
+        # Inicia a thread para lidar com a recepção de temperatura
+        thread_cliente = threading.Thread(target=handle_cliente, args=(udp_socket, endereco))
+        thread_cliente.start()
     thread_cliente = threading.Thread(target=handle_cliente, args=(cliente_socket, endereco))
     thread_cliente.start()

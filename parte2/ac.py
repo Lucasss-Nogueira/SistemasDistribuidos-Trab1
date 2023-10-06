@@ -18,6 +18,9 @@ multicast_socket.bind(('', multicast_port))
 multicast_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 multicast_socket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, socket.inet_aton(multicast_group) + socket.inet_aton('0.0.0.0'))
 
+# Inicializa o socket UDP para enviar a temperatura
+udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+udp_temp_addr = None
 while True:
     mensagem, endereco = multicast_socket.recvfrom(1024)
     equipamento_info = messages_pb2.EquipmentInfo()
@@ -25,11 +28,12 @@ while True:
 
     if equipamento_info.type == messages_pb2.EquipmentInfo.GATEWAY:
         gateway_address = (equipamento_info.ip, equipamento_info.port)
+        udp_temp_addr = (equipamento_info.ip, equipamento_info.port + 1)
         # Conecta à porta específica do Gateway via TCP
         ac_socket.connect(gateway_address)
         # Envia o tipo do dispositivo para o Gateway
         ac_socket.send("AC".encode())
-        print('Ar-condicionado conectado ao Gateway.')
+        print('Ar-condicionado conectado ao Gateway.\n')
         multicast_socket.close()
         break
 
@@ -38,9 +42,11 @@ def enviar_temperatura(ac_socket):
         comando_msg = messages_pb2.Command()
         comando_msg.type = EQUIPAMENTO_TIPO
         comando_msg.temperature = temperatura
-        ac_socket.send(comando_msg.SerializeToString())
-        print(f'Temperatura enviada: {temperatura}°C')
-        time.sleep(5)
+
+        udp_socket.sendto(comando_msg.SerializeToString(), udp_temp_addr)
+        #ac_socket.send(comando_msg.SerializeToString())
+        print(f'Temperatura enviada: {temperatura}°C\n')
+        time.sleep(15)
 # Thread para enviar a temperatura periodicamente
 thread_temperatura = threading.Thread(target=enviar_temperatura, args=(ac_socket,))
 thread_temperatura.start()
