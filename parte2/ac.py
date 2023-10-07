@@ -2,7 +2,6 @@ import socket
 import messages_pb2
 import time
 import threading
-
 # Configurações do ar-condicionado
 EQUIPAMENTO_TIPO = messages_pb2.EquipmentInfo.AC
 temperatura = 25
@@ -31,8 +30,13 @@ while True:
         udp_temp_addr = (equipamento_info.ip, equipamento_info.port + 1)
         # Conecta à porta específica do Gateway via TCP
         ac_socket.connect(gateway_address)
+
         # Envia o tipo do dispositivo para o Gateway
-        ac_socket.send("AC".encode())
+        comando_msg = messages_pb2.Command()
+        comando_msg.type = EQUIPAMENTO_TIPO
+        ac_socket.send(comando_msg.SerializeToString())
+        #ac_socket.send("AC".encode()
+
         print('Ar-condicionado conectado ao Gateway.\n')
         multicast_socket.close()
         break

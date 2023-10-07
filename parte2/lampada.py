@@ -2,7 +2,7 @@ import socket
 import messages_pb2
 
 # Configurações da lâmpada
-EQUIPAMENTO_TIPO = messages_pb2.Command.LAMP
+EQUIPAMENTO_TIPO = messages_pb2.EquipmentInfo.LAMP
 
 # Inicializa o socket TCP da lâmpada
 lampada_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -22,13 +22,16 @@ while True:
     equipamento_info = messages_pb2.EquipmentInfo()
     equipamento_info.ParseFromString(mensagem)
 
-    if equipamento_info.type == messages_pb2.Command.GATEWAY:
+    if equipamento_info.type == messages_pb2.EquipmentInfo.GATEWAY:
         gateway_address = (equipamento_info.ip, equipamento_info.port)
         # Conecta à porta específica do Gateway via TCP
         lampada_socket.connect(gateway_address)
         # Envia o tipo do dispositivo para o Gateway
-        lampada_socket.send("LAMP".encode())
-        print('Lâmpada conectada ao Gateway.\n')
+        comando_msg = messages_pb2.Command()
+        comando_msg.type = EQUIPAMENTO_TIPO
+        lampada_socket.send(comando_msg.SerializeToString())
+        #fechadura_socket.send("LOCK".encode())
+        print('Lampada conectada ao Gateway.\n')
         multicast_socket.close()
         break
 

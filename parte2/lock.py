@@ -1,6 +1,6 @@
 import socket
 import messages_pb2
-
+from google.protobuf import text_format
 # Configurações da fechadura
 EQUIPAMENTO_TIPO = messages_pb2.EquipmentInfo.LOCK
 senha_correta = "1234"
@@ -27,7 +27,10 @@ while True:
         # Conecta à porta específica do Gateway via TCP
         fechadura_socket.connect(gateway_address)
         # Envia o tipo do dispositivo para o Gateway
-        fechadura_socket.send("LOCK".encode())
+        comando_msg = messages_pb2.Command()
+        comando_msg.type = EQUIPAMENTO_TIPO
+        fechadura_socket.send(comando_msg.SerializeToString())
+        #fechadura_socket.send("LOCK".encode())
         print('Fechadura conectada ao Gateway.\n')
         multicast_socket.close()
         break

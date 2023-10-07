@@ -138,9 +138,15 @@ print('Gateway iniciado...\n')
 # Aceita e lida com as conexões dos clientes
 while True:
     cliente_socket, endereco = server_socket.accept()
-    tipo_dispositivo = cliente_socket.recv(1024).decode()  # Recebe o tipo do dispositivo
+    # recebe tipo de dispositivo e faz o decode
+    comando_msg = cliente_socket.recv(1024)
+    comando = messages_pb2.Command()
+    comando.ParseFromString(comando_msg)
+
+    tipo_dispositivo = comando.EquipmentType.Name(comando.type)  # tipo do dispositivo
     equipamentos[tipo_dispositivo] = cliente_socket
     print(f'Conexão estabelecida com {str(endereco)} (Tipo de dispositivo: {tipo_dispositivo})')
+    
     if tipo_dispositivo == 'AC' and udp_socket is None:
         # Se o dispositivo for o ar-condicionado e o socket UDP ainda não foi criado
         udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
