@@ -27,7 +27,13 @@ Qualquer mensagem escrita pelo cliente que não começe por "\" será interpreta
  #### . Socket
  #### . Threading 
 
-  ## Para a parte 2:
+ ## Para a parte 2:
+ Foi definido um ambiente de casa inteligente, composto por um gateway principal, um AC (sensor contínuo de temperatura), uma lâmpada (capaz de ser ligada e desligada) e uma fechadura eletrônica (que se abre caso seja informada a senha correta).
+ 
+ ### Funcionamento da aplicação:
+ #### 1. Inicialmente, o gateway começa seu processo de descoberta multicast, no qual solicita que os dispositivos encontrados se conectem com o gateway via TCP (por meio das informações passadas pelo gateway no processo de descoberta multicast, o IP e a porta do socket TCP) e se identifiquem. 
+
+ #### 2. Quando os dispostivos conseguem estabelecer a conexão TCP e se identificar, encerram a conexão com o socket UDP utilizado no processo de descoberta/identificação e ficam disponíveis para exercer as suas funcionalidades. Sejam estas receber comandos ou enviar medidas periodicamente. Para o AC, por exemplo, estabelece-se uma nova conexão UDP, que será utilizada para o envio periódico dos seus registros de temperatura e una conexão TCP que será utilizada para o recebimento de comandos.
 
  ### Linguagem utlizada: 
  #### . Python
