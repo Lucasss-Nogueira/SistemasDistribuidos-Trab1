@@ -27,3 +27,13 @@ Qualquer mensagem escrita pelo cliente que não começe por "\" será interpreta
  #### . Socket
  #### . Threading 
 
+  ## Para a parte 2:
+
+ ### Linguagem utlizada: 
+ #### . Python
+ #### . Protocol Buffers3
+ ### Bibliotecas utilizadas :
+ #### . Socket
+ #### . Threading 
+
+
