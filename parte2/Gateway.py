@@ -51,8 +51,14 @@ def multicast_discovery():
 
 # Função para enviar comandos para os equipamentos
 
+state = False
+temperatura = 0
+senha = "pass" 
 
 def enviar_comando():
+
+    global state, temperatura, senha
+
     while True:
 
         tipo = input('Digite o tipo do equipamento (LAMP, AC, LOCK): \n')
@@ -60,9 +66,7 @@ def enviar_comando():
             
             comando_msg = messages_pb2.Command()
             print(comando_msg)
-            state = False
-            temperatura = 0
-            senha = "pass" 
+
             comando_msg.type = tipo
             comando_msg.temperature = temperatura
             comando_msg.state = state
